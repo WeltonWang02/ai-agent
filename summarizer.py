@@ -10,7 +10,7 @@ class Summarizer:
 
     async def summarize_messages(self, messages: list) -> str:
         # Prepare the message content for summarization
-        message_content = "\n".join([f"{msg.author.name}: {msg.content}" for msg in messages])
+        message_content = "\n".join([f"{msg.user_name}: {msg.content}" for msg in messages])
 
         # Define a prompt for summarization
         summarization_prompt = f"Summarize the following conversation:\n{message_content}"
