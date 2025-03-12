@@ -6,6 +6,7 @@ from discord.ext import commands
 from dotenv import load_dotenv
 from agent import MistralAgent
 from moderation import Moderation
+from summarizer import Summarizer
 
 PREFIX = "!"
 
@@ -27,6 +28,9 @@ agent = MistralAgent()
 token = os.getenv("DISCORD_TOKEN")
 
 moderation = Moderation(bot)
+
+# Initialize the summarizer
+summarizer = Summarizer()
 
 @bot.event
 async def on_ready():
@@ -56,6 +60,7 @@ async def on_message(message: discord.Message):
     # Ignore messages from self or other bots to prevent infinite loops.
     if message.author.bot or message.content.startswith("!"):
         return
+
 # Commands
 
 
@@ -69,6 +74,16 @@ async def ping(ctx, *, arg=None):
     else:
         await ctx.send(f"Pong! Your argument was {arg}")
 
+@bot.command(name="summarize", help="Summarizes the last 10 messages in the current channel.")
+async def summarize(ctx):
+    # Fetch the last 10 messages from the channel
+    messages = [message async for message in ctx.channel.history(limit=10)]
+
+    # Generate a summary
+    summary = await summarizer.summarize_messages(messages)
+
+    # Send the summary back to the channel
+    await ctx.send(f"Summary:\n{summary}")
 
 # Start the bot, connecting it to the gateway
 bot.run(token)

@@ -7,6 +7,7 @@ from discord.ext import commands
 from discord_wrapper import DiscordWrapper
 import logging
 from utils import format_message, format_single_message
+from summarizer import Summarizer
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -137,6 +138,7 @@ class Moderation:
         self.agent = MistralAgent()
         self.bot = bot
         self.discord_wrapper = DiscordWrapper(bot)
+        self.summarizer = Summarizer()
 
     def is_author_admin(self, message: Message):
         return message.author.guild_permissions.administrator
@@ -208,5 +210,16 @@ class Moderation:
         
         if message.author.bot:
             return
+
+    async def summarize_channel(self, channel_id: str):
+        channel = self.bot.get_channel(channel_id)
+        if channel:
+            messages = await channel.history(limit=10).flatten()
+            summary = await self.summarizer.summarize_messages(messages)
+            logger.info(f"Summary for channel {channel_id}: {summary}")
+            return summary
+        else:
+            logger.error(f"Channel {channel_id} not found.")
+            return None
 
 
