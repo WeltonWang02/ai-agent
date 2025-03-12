@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Dict, List
 from discord import Message
 
@@ -8,6 +8,7 @@ MAX_MESSAGE_CONTEXT = 10
 class Channel:
     id: str
     messages: List[str]
+    last_read: Dict[str, str] = field(default_factory=dict)  # user_id -> message_id
 
 @dataclass
 class Server:
@@ -42,7 +43,6 @@ class Messages:
         if message.channel.id not in self.servers[message.guild.id].channels:
             self.servers[message.guild.id].channels[message.channel.id] = Channel(message.channel.id, [])
 
-
         single_message = SingleMessage(content=message.content, server_id=message.guild.id, server_name=message.guild.name, user_id=message.author.id, user_name=message.author.name, channel_id=message.channel.id, channel_name=message.channel.name, message_id=message.id)
         self.servers[message.guild.id].channels[message.channel.id].messages.append(single_message)
 
@@ -57,3 +57,21 @@ class Messages:
             return []
 
         return self.servers[server_id].channels[channel_id].messages
+
+    def update_last_read(self, user_id: str, channel_id: str, message_id: str):
+        for server in self.servers.values():
+            if channel_id in server.channels:
+                server.channels[channel_id].last_read[user_id] = message_id
+
+    def get_unread_messages(self, user_id: str, channel_id: str):
+        for server in self.servers.values():
+            if channel_id in server.channels:
+                channel = server.channels[channel_id]
+                last_read_id = channel.last_read.get(user_id)
+                if last_read_id:
+                    # Find the index of the last read message
+                    index = next((i for i, msg in enumerate(channel.messages) if msg.message_id == last_read_id), -1)
+                    return channel.messages[index + 1:]
+                else:
+                    return channel.messages
+        return []
