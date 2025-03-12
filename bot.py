@@ -52,6 +52,9 @@ async def on_message(message: discord.Message):
     if message.guild:
         # sent to a server
         await moderation.moderate(message)
+    else:
+        # sent to a user
+        await moderation.handle_user_conversation(message)
 
     # Ignore messages from self or other bots to prevent infinite loops.
     if message.author.bot or message.content.startswith("!"):
