@@ -6,6 +6,7 @@ from agent import MistralAgent
 from discord.ext import commands
 from discord_wrapper import DiscordWrapper
 import logging
+from summarizer import Summarizer
 from utils import format_message, format_discord_message, format_mod_action
 
 logging.basicConfig(level=logging.INFO)
@@ -190,6 +191,7 @@ class Moderation:
         self.agent = MistralAgent()
         self.bot = bot
         self.discord_wrapper = DiscordWrapper(bot)
+        self.summarizer = Summarizer()
 
     def is_author_admin(self, message: Message):
         return message.author.guild_permissions.administrator
@@ -277,6 +279,9 @@ class Moderation:
             raise e
 
     async def handle_user_conversation(self, message: Message):
+
+        if message.author.bot:
+            return
         # Track DM messages for context
         self.messages.add_message(message)
 
@@ -313,7 +318,44 @@ class Moderation:
         except Exception as e:
             logger.error(f"Error processing tool calls: {e}")
             raise e
+        
+    async def summarize_channel(self, channel_id: str):
+        channel = self.bot.get_channel(channel_id)
+        if channel:
+            messages = await channel.history(limit=10).flatten()
+            summary = await self.summarizer.summarize_messages(messages)
+            logger.info(f"Summary for channel {channel_id}: {summary}")
+            return summary
+        else:
+            logger.error(f"Channel {channel_id} not found.")
+            return None
+        
+    async def get_unread_messages(self, user_id: str, channel_id: str, message: Message):
+        for server in self.messages.servers.values():
+            all_messages = []
+                # look at at most 100 messages
+            async for hist_msg in message.channel.history(limit=100):
+                all_messages.append(hist_msg)
 
+            if channel_id in server.channels:
+                channel = server.channels[channel_id]
+                last_read_id = channel.get(user_id)
+                print(f"Last read id: {last_read_id}, {user_id}, {server.channels}")
+                if last_read_id:
+                    # Find the index of the last read message
+
+                            
+                    # Get message history from DMs using Discord's history
+          
+
+                    index = next((i for i in range(len(all_messages)) if all_messages[i].id == last_read_id), -1)
+                    print(f"Index: {index}")
+                    print(f"All messages: {all_messages}")
+                    return all_messages[:index]
+                else:
+                    return all_messages
+            return all_messages
+        return []
 
 
 

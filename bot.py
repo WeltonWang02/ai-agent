@@ -8,8 +8,12 @@ from discord.ext import commands
 from dotenv import load_dotenv
 from agent import MistralAgent
 from moderation import Moderation
+from summarizer import Summarizer
 
 PREFIX = "!"
+
+# Define a constant for the number of messages to summarize
+SUMMARY_MESSAGE_LIMIT = 10
 
 # Setup logging
 logger = logging.getLogger("discord")
@@ -30,6 +34,8 @@ token = os.getenv("DISCORD_TOKEN")
 
 moderation = Moderation(bot)
 
+# Initialize the summarizer
+summarizer = Summarizer()
 # Handle graceful shutdown
 def signal_handler(sig, frame):
     """Handle SIGINT and SIGTERM signals to gracefully shut down the bot."""
@@ -93,6 +99,36 @@ async def ping(ctx, *, arg=None):
     else:
         await ctx.send(f"Pong! Your argument was {arg}")
 
+@bot.command(name="summarize", help="Summarizes the last N messages in the current channel.")
+async def summarize(ctx, number: int = SUMMARY_MESSAGE_LIMIT):
+    # Fetch the last N messages from the channel, where N is defined by the user or defaults to SUMMARY_MESSAGE_LIMIT
+    messages = [message async for message in ctx.channel.history(limit=number)]
+
+    # Generate a summary
+    summary = await summarizer.summarize_messages(messages)
+
+    # Send the summary back to the channel
+    await ctx.send(f"Summary of the last {number} messages:\n{summary}")
+
+@bot.command(name="summarize_unread", help="Summarizes unread messages in the current channel.")
+async def summarize_unread(ctx):
+    # Get unread messages for the user in the current channel
+    unread_messages = await moderation.get_unread_messages(ctx.author.id, ctx.channel.id, ctx.message)
+
+    if not unread_messages:
+        await ctx.send("No unread messages to summarize.")
+        return
+
+    # Generate a summary
+    summary = await summarizer.summarize_messages(unread_messages)
+
+    # Send the summary back to the channel
+    await ctx.send(f"Summary of unread messages:\n{summary}")
+
+    # Update the last read message for the user
+    if unread_messages:
+        last_message_id = unread_messages[0].id
+        moderation.messages.update_last_read(ctx.author.id, ctx.channel.id, last_message_id)
 
 # Start the bot, connecting it to the gateway
 bot.run(token)

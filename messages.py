@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Dict, List, Optional
 from discord import Message
 
@@ -27,7 +27,19 @@ class Server:
     rules: str
     name: str
     recent_actions: list[ModAction]
-    actions: Dict[str, list[ModAction]]
+    actions: Dict[str, list[ModAction]] = field(default_factory=dict)
+    channels: Dict[str, dict[str, str]] = field(default_factory=dict)
+
+@dataclass
+class SingleMessage:
+    content: str
+    server_id: str
+    server_name: str
+    user_id: str
+    user_name: str
+    channel_id: str
+    channel_name: str
+    message_id: str
 
 DEFAULT_RULES = """Allow everything and don't do anything."""
 
@@ -143,3 +155,10 @@ class Messages:
         # Import here to avoid circular imports
         from db import FileDB
         return FileDB.load_messages()
+
+    def update_last_read(self, user_id: str, channel_id: str, message_id: str):
+        for server in self.servers.values():
+            if channel_id in server.channels:
+                server.channels[channel_id][user_id] = message_id
+            else:
+                server.channels[channel_id] = {user_id: message_id}

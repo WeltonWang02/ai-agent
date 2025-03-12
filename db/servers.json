@@ -35,12 +35,5 @@
         }
       ]
     }
-  },
-  "635496421835014156": {
-    "id": 635496421835014156,
-    "name": "tttt",
-    "rules": "DM / warn the user if they say a swear word and delete the message",
-    "recent_actions": [],
-    "actions": {}
   }
 }
