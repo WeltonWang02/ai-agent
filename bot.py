@@ -1,6 +1,8 @@
 import os
 import discord
 import logging
+import signal
+import sys
 
 from discord.ext import commands
 from dotenv import load_dotenv
@@ -34,6 +36,28 @@ moderation = Moderation(bot)
 
 # Initialize the summarizer
 summarizer = Summarizer()
+# Handle graceful shutdown
+def signal_handler(sig, frame):
+    """Handle SIGINT and SIGTERM signals to gracefully shut down the bot."""
+    logger.info("Received shutdown signal, saving data and exiting...")
+    
+    # Save messages state
+    try:
+        moderation.messages.save()
+        logger.info("Successfully saved messages state")
+    except Exception as e:
+        logger.error(f"Error saving messages state: {e}")
+    
+    # Close the bot
+    logger.info("Closing bot connection...")
+    bot.loop.create_task(bot.close())
+    
+    # Exit after a short delay
+    sys.exit(0)
+
+# Register signal handlers
+signal.signal(signal.SIGINT, signal_handler)
+signal.signal(signal.SIGTERM, signal_handler)
 
 @bot.event
 async def on_ready():
@@ -56,20 +80,18 @@ async def on_message(message: discord.Message):
     # Don't delete this line! It's necessary for the bot to process commands.
     await bot.process_commands(message)
 
-    if message.guild:
-        # sent to a server
-        await moderation.moderate(message)
-
     # Ignore messages from self or other bots to prevent infinite loops.
     if message.author.bot or message.content.startswith("!"):
         return
+        
+    if message.guild:
+        # sent to a server
+        await moderation.moderate(message)
+    else:
+        # sent to a user
+        await moderation.handle_user_conversation(message)
 
 # Commands
-
-
-# This example command is here to show you how to add commands to the bot.
-# Run !ping with any number of arguments to see the command in action.
-# Feel free to delete this if your project will not need commands.
 @bot.command(name="ping", help="Pings the bot.")
 async def ping(ctx, *, arg=None):
     if arg is None:

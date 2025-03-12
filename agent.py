@@ -3,6 +3,7 @@ from mistralai import Mistral
 import re
 import json
 from discord.ext import commands
+from tenacity import retry, stop_after_attempt, wait_exponential
 
 MISTRAL_MODEL = "mistral-large-latest"
 SYSTEM_PROMPT = "You are a helpful assistant."
@@ -19,6 +20,7 @@ class MistralAgent:
             tool_calls.append(json.loads(match))
         return tool_calls
 
+    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
     async def send_message(self, message: str, system_prompt: str = SYSTEM_PROMPT) -> str:
         messages = [
             {"role": "system", "content": system_prompt},

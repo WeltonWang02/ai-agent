@@ -11,6 +11,7 @@ dependencies = [
     { name = "mistral" },
     { name = "mistralai" },
     { name = "python-dotenv" },
+    { name = "tenacity" },
 ]
 
 [package.metadata]
@@ -20,6 +21,7 @@ requires-dist = [
     { name = "mistral", specifier = ">=19.0.0" },
     { name = "mistralai", specifier = ">=1.4.0" },
     { name = "python-dotenv", specifier = ">=1.0.1" },
+    { name = "tenacity", specifier = ">=9.0.0" },
 ]
 
 [[package]]

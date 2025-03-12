@@ -27,8 +27,9 @@ class DiscordWrapper:
 
     async def unban_user(self, guild_id: str, user_id: str):
         guild = self.bot.get_guild(int(guild_id))
-        if guild:
-            await guild.unban(user_id)
+        user = await self.bot.fetch_user(int(user_id))
+        if guild and user:
+            await guild.unban(user)
 
     async def delete_message(self, channel_id: str, message_id: str):
         channel = self.bot.get_channel(int(channel_id))

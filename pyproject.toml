@@ -10,4 +10,5 @@ dependencies = [
     "mistral>=19.0.0",
     "mistralai>=1.4.0",
     "python-dotenv>=1.0.1",
+    "tenacity>=9.0.0",
 ]
