@@ -26,7 +26,7 @@ agent = MistralAgent()
 # Get the token from the environment variables
 token = os.getenv("DISCORD_TOKEN")
 
-moderation = Moderation()
+moderation = Moderation(bot)
 
 @bot.event
 async def on_ready():
@@ -49,21 +49,13 @@ async def on_message(message: discord.Message):
     # Don't delete this line! It's necessary for the bot to process commands.
     await bot.process_commands(message)
 
-    await moderation.moderate(message)
+    if message.guild:
+        # sent to a server
+        await moderation.moderate(message)
 
     # Ignore messages from self or other bots to prevent infinite loops.
     if message.author.bot or message.content.startswith("!"):
         return
-
-    # Process the message with the agent you wrote
-    # Open up the agent.py file to customize the agent
-    logger.info(f"Processing message from {message.author}: {message.content}")
-    response = await agent.run(message)
-
-    # Send the response back to the channel
-    await message.reply(response)
-
-
 # Commands
 
 
