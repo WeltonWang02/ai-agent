@@ -49,6 +49,10 @@ async def on_message(message: discord.Message):
     # Don't delete this line! It's necessary for the bot to process commands.
     await bot.process_commands(message)
 
+    # Ignore messages from self or other bots to prevent infinite loops.
+    if message.author.bot or message.content.startswith("!"):
+        return
+        
     if message.guild:
         # sent to a server
         await moderation.moderate(message)
@@ -56,15 +60,7 @@ async def on_message(message: discord.Message):
         # sent to a user
         await moderation.handle_user_conversation(message)
 
-    # Ignore messages from self or other bots to prevent infinite loops.
-    if message.author.bot or message.content.startswith("!"):
-        return
 # Commands
-
-
-# This example command is here to show you how to add commands to the bot.
-# Run !ping with any number of arguments to see the command in action.
-# Feel free to delete this if your project will not need commands.
 @bot.command(name="ping", help="Pings the bot.")
 async def ping(ctx, *, arg=None):
     if arg is None:
