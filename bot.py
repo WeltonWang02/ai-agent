@@ -5,6 +5,7 @@ import logging
 from discord.ext import commands
 from dotenv import load_dotenv
 from agent import MistralAgent
+from moderation import Moderation
 
 PREFIX = "!"
 
@@ -22,10 +23,10 @@ bot = commands.Bot(command_prefix=PREFIX, intents=intents)
 # Import the Mistral agent from the agent.py file
 agent = MistralAgent()
 
-
 # Get the token from the environment variables
 token = os.getenv("DISCORD_TOKEN")
 
+moderation = Moderation(bot)
 
 @bot.event
 async def on_ready():
@@ -51,22 +52,15 @@ async def on_message(message: discord.Message):
     # Ignore messages from self or other bots to prevent infinite loops.
     if message.author.bot or message.content.startswith("!"):
         return
-
-    # Process the message with the agent you wrote
-    # Open up the agent.py file to customize the agent
-    logger.info(f"Processing message from {message.author}: {message.content}")
-    response = await agent.run(message)
-
-    # Send the response back to the channel
-    await message.reply(response)
-
+        
+    if message.guild:
+        # sent to a server
+        await moderation.moderate(message)
+    else:
+        # sent to a user
+        await moderation.handle_user_conversation(message)
 
 # Commands
-
-
-# This example command is here to show you how to add commands to the bot.
-# Run !ping with any number of arguments to see the command in action.
-# Feel free to delete this if your project will not need commands.
 @bot.command(name="ping", help="Pings the bot.")
 async def ping(ctx, *, arg=None):
     if arg is None:
