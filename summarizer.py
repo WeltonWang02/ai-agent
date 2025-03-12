@@ -2,6 +2,8 @@ from agent import MistralAgent
 import discord
 import logging
 
+from messages import SingleMessage
+
 logger = logging.getLogger(__name__)
 
 class Summarizer:

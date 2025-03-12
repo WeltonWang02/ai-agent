@@ -113,7 +113,7 @@ async def summarize(ctx, number: int = SUMMARY_MESSAGE_LIMIT):
 @bot.command(name="summarize_unread", help="Summarizes unread messages in the current channel.")
 async def summarize_unread(ctx):
     # Get unread messages for the user in the current channel
-    unread_messages = moderation.messages.get_unread_messages(ctx.author.id, ctx.channel.id)
+    unread_messages = await moderation.get_unread_messages(ctx.author.id, ctx.channel.id, ctx.message)
 
     if not unread_messages:
         await ctx.send("No unread messages to summarize.")
@@ -127,7 +127,7 @@ async def summarize_unread(ctx):
 
     # Update the last read message for the user
     if unread_messages:
-        last_message_id = unread_messages[-1].message_id
+        last_message_id = unread_messages[0].id
         moderation.messages.update_last_read(ctx.author.id, ctx.channel.id, last_message_id)
 
 # Start the bot, connecting it to the gateway
