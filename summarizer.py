@@ -1,5 +1,5 @@
 from agent import OpenAIAgent
-import discord
+]import discord
 import logging
 
 from messages import SingleMessage
