@@ -78,15 +78,15 @@ async def ping(ctx, *, arg=None):
         await ctx.send(f"Pong! Your argument was {arg}")
 
 @bot.command(name="summarize", help="Summarizes the last N messages in the current channel.")
-async def summarize(ctx):
-    # Fetch the last N messages from the channel, where N is defined by SUMMARY_MESSAGE_LIMIT
-    messages = [message async for message in ctx.channel.history(limit=SUMMARY_MESSAGE_LIMIT)]
+async def summarize(ctx, number: int = SUMMARY_MESSAGE_LIMIT):
+    # Fetch the last N messages from the channel, where N is defined by the user or defaults to SUMMARY_MESSAGE_LIMIT
+    messages = [message async for message in ctx.channel.history(limit=number)]
 
     # Generate a summary
     summary = await summarizer.summarize_messages(messages)
 
     # Send the summary back to the channel
-    await ctx.send(f"Summary of the last {SUMMARY_MESSAGE_LIMIT} messages:\n{summary}")
+    await ctx.send(f"Summary of the last {number} messages:\n{summary}")
 
 @bot.command(name="summarize_unread", help="Summarizes unread messages in the current channel.")
 async def summarize_unread(ctx):
