@@ -41,7 +41,7 @@ class Messages:
     # We still need to track servers for rules and moderation actions
     def ensure_server_exists(self, message: Message):
         if message.guild and message.guild.id not in self.servers:
-            self.servers[message.guild.id] = Server(
+            self.servers[str(message.guild.id)] = Server(
                 id=message.guild.id, 
                 name=message.guild.name, 
                 rules=DEFAULT_RULES, 
@@ -90,13 +90,13 @@ class Messages:
     def get_user_mod_actions(self, user_id: str, server_ids: list[str]):
         actions = []
         for server_id in server_ids:
-            if server_id not in self.servers:
+            if str(server_id) not in self.servers:
                 continue
 
-            if user_id not in self.servers[server_id].actions:
+            if user_id not in self.servers[str(server_id)].actions:
                 continue
 
-            actions.extend(self.servers[server_id].actions[user_id])
+            actions.extend(self.servers[str(server_id)].actions[user_id])
 
         return actions[:MAX_RECENT_MOD_ACTIONS]
     
@@ -105,11 +105,11 @@ class Messages:
         if not server_id:
             return
             
-        if server_id not in self.servers:
+        if str(server_id) not in self.servers:
             return
             
-        if user_id not in self.servers[server_id].actions:
-            self.servers[server_id].actions[user_id] = []
+        if user_id not in self.servers[str(server_id)].actions:
+            self.servers[str(server_id)].actions[user_id] = []
             
         # Create a SingleMessage object from the message data
         message = SingleMessage(
@@ -123,5 +123,5 @@ class Messages:
             message_id=message_data.get("message_id", "")
         )
         
-        self.servers[server_id].actions[user_id].append(ModAction(action, message))
-        self.servers[server_id].recent_actions.append(ModAction(action, message))
+        self.servers[str(server_id)].actions[user_id].append(ModAction(action, message))
+        self.servers[str(server_id)].recent_actions.append(ModAction(action, message))
