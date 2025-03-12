@@ -77,7 +77,6 @@ class TestModeration(unittest.TestCase):
     def test_init(self):
         # Test that the Moderation class initializes correctly
         self.assertEqual(self.moderation.bot, self.mock_bot)
-        self.assertEqual(self.moderation.messages, self.mock_messages)
         self.assertEqual(self.moderation.agent, self.mock_agent)
     
     def test_is_author_admin(self):

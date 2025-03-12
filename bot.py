@@ -1,6 +1,8 @@
 import os
 import discord
 import logging
+import signal
+import sys
 
 from discord.ext import commands
 from dotenv import load_dotenv
@@ -27,6 +29,29 @@ agent = MistralAgent()
 token = os.getenv("DISCORD_TOKEN")
 
 moderation = Moderation(bot)
+
+# Handle graceful shutdown
+def signal_handler(sig, frame):
+    """Handle SIGINT and SIGTERM signals to gracefully shut down the bot."""
+    logger.info("Received shutdown signal, saving data and exiting...")
+    
+    # Save messages state
+    try:
+        moderation.messages.save()
+        logger.info("Successfully saved messages state")
+    except Exception as e:
+        logger.error(f"Error saving messages state: {e}")
+    
+    # Close the bot
+    logger.info("Closing bot connection...")
+    bot.loop.create_task(bot.close())
+    
+    # Exit after a short delay
+    sys.exit(0)
+
+# Register signal handlers
+signal.signal(signal.SIGINT, signal_handler)
+signal.signal(signal.SIGTERM, signal_handler)
 
 @bot.event
 async def on_ready():

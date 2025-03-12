@@ -125,3 +125,21 @@ class Messages:
         
         self.servers[str(server_id)].actions[user_id].append(ModAction(action, message))
         self.servers[str(server_id)].recent_actions.append(ModAction(action, message))
+        # Keep only the most recent MAX_RECENT_MOD_ACTIONS
+        self.servers[str(server_id)].recent_actions = self.servers[str(server_id)].recent_actions[-MAX_RECENT_MOD_ACTIONS:]
+        
+        # Save changes to disk
+        self.save()
+    
+    def save(self):
+        """Save the current state to disk"""
+        # Import here to avoid circular imports
+        from db import FileDB
+        FileDB.save_messages(self)
+    
+    @classmethod
+    def load(cls):
+        """Load the state from disk"""
+        # Import here to avoid circular imports
+        from db import FileDB
+        return FileDB.load_messages()

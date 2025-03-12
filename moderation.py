@@ -179,7 +179,14 @@ MAX_MESSAGE_CONTEXT = 10  # Assuming a default value, you might want to define t
 
 class Moderation:
     def __init__(self, bot: commands.Bot):
-        self.messages = Messages()
+        # Try to load messages from disk, or create a new instance if loading fails
+        try:
+            self.messages = Messages.load()
+            logger.info("Loaded messages from disk")
+        except Exception as e:
+            logger.error(f"Error loading messages from disk: {e}")
+            self.messages = Messages()
+            
         self.agent = MistralAgent()
         self.bot = bot
         self.discord_wrapper = DiscordWrapper(bot)
@@ -207,6 +214,8 @@ class Moderation:
         elif tool_call["action"] == "update_server_rules":
             self.messages.servers[str(tool_call["args"]["server_id"])].rules = tool_call["args"]["rules"]
             logger.info(f"Updated rules for server {tool_call['args']['server_id']} to {tool_call['args']['rules']}")
+            # Save changes to disk after updating rules
+            self.messages.save()
         elif tool_call["action"] == "send_message":
             await self.discord_wrapper.send_message(tool_call["args"]["channel_id"], tool_call["args"]["message"])
             logger.info(f"Sent message to channel {tool_call['args']['channel_id']}")
@@ -263,7 +272,6 @@ class Moderation:
                         await self.run_tool(tool_call)
                     except Exception as e:
                         logger.error(f"Error running tool call: {e}")
-                        raise e
         except Exception as e:
             logger.error(f"Error processing tool calls: {e}")
             raise e

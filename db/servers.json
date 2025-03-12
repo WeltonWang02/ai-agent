@@ -1,0 +1,46 @@
+{
+  "789123456": {
+    "id": "789123456",
+    "name": "Test Server",
+    "rules": "Custom rules",
+    "recent_actions": [
+      {
+        "action": "delete",
+        "message": {
+          "content": "This is a test message",
+          "server_id": "789123456",
+          "server_name": "Test Server",
+          "user_id": "123456789",
+          "user_name": "TestUser",
+          "channel_id": "456789123",
+          "channel_name": "test-channel",
+          "message_id": "987654321"
+        }
+      }
+    ],
+    "actions": {
+      "123456789": [
+        {
+          "action": "delete",
+          "message": {
+            "content": "This is a test message",
+            "server_id": "789123456",
+            "server_name": "Test Server",
+            "user_id": "123456789",
+            "user_name": "TestUser",
+            "channel_id": "456789123",
+            "channel_name": "test-channel",
+            "message_id": "987654321"
+          }
+        }
+      ]
+    }
+  },
+  "635496421835014156": {
+    "id": 635496421835014156,
+    "name": "tttt",
+    "rules": "DM / warn the user if they say a swear word and delete the message",
+    "recent_actions": [],
+    "actions": {}
+  }
+}
