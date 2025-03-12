@@ -35,5 +35,19 @@
         }
       ]
     }
+  },
+  "635496421835014156": {
+    "id": 635496421835014156,
+    "name": "tttt",
+    "rules": "call me out if i say a swear word",
+    "recent_actions": [],
+    "actions": {}
+  },
+  "1346906122724048906": {
+    "id": 1346906122724048906,
+    "name": "CS 153 - Project Channels #2",
+    "rules": "call anyone that says a swear word out and dm them don't swear please",
+    "recent_actions": [],
+    "actions": {}
   }
 }

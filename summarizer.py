@@ -1,5 +1,5 @@
-from agent import MistralAgent
-import discord
+from agent import OpenAIAgent
+]import discord
 import logging
 
 from messages import SingleMessage
@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 class Summarizer:
     def __init__(self):
-        self.agent = MistralAgent()
+        self.agent = OpenAIAgent()
 
     async def summarize_messages(self, messages: list) -> str:
         # Prepare the message content for summarization
