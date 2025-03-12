@@ -5,6 +5,7 @@ import logging
 from discord.ext import commands
 from dotenv import load_dotenv
 from agent import MistralAgent
+from moderation import Moderation
 
 PREFIX = "!"
 
@@ -22,10 +23,10 @@ bot = commands.Bot(command_prefix=PREFIX, intents=intents)
 # Import the Mistral agent from the agent.py file
 agent = MistralAgent()
 
-
 # Get the token from the environment variables
 token = os.getenv("DISCORD_TOKEN")
 
+moderation = Moderation()
 
 @bot.event
 async def on_ready():
@@ -47,6 +48,8 @@ async def on_message(message: discord.Message):
     """
     # Don't delete this line! It's necessary for the bot to process commands.
     await bot.process_commands(message)
+
+    await moderation.moderate(message)
 
     # Ignore messages from self or other bots to prevent infinite loops.
     if message.author.bot or message.content.startswith("!"):
