@@ -2,7 +2,7 @@ import json
 import logging
 from discord import Message
 from messages import Messages, SingleMessage
-from agent import MistralAgent
+from agent import OpenAIAgent
 from discord.ext import commands
 from discord_wrapper import DiscordWrapper
 import logging
@@ -188,7 +188,7 @@ class Moderation:
             logger.error(f"Error loading messages from disk: {e}")
             self.messages = Messages()
             
-        self.agent = MistralAgent()
+        self.agent = OpenAIAgent()
         self.bot = bot
         self.discord_wrapper = DiscordWrapper(bot)
         self.summarizer = Summarizer()

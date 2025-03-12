@@ -9,6 +9,7 @@ dependencies = [
     "discord-py>=2.4.0",
     "mistral>=19.0.0",
     "mistralai>=1.4.0",
+    "openai>=1.66.2",
     "python-dotenv>=1.0.1",
     "tenacity>=9.0.0",
 ]
